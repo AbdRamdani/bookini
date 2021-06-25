@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css">
+    <script
+      src="https://kit.fontawesome.com/d80ad0feb1.js"
+      crossorigin="anonymous"
+    ></script>
+    <link rel="stylesheet" href="{{ url_for('static',filename='css/Dashboard.css') }}">
+</head>
+<body>
+  <nav class="navbar navbar-red bg-white" id="nav">
+    <div class="container-fluid">
+        <a class="navbar-brand text-white" href="/"> <i class="fas fa-back text-white logo"></i>Back to Home Page</a>
+        
+        <form class="d-flex" method="POST" action="/search">
+          <input class="form-control me-2" name="query" id="search" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-light"  id="search_btn" type="submit">Search</button>
+        </form>
+        <a href="/logout" class="btn btn-outline-light " id="logout_btn" type="submit">Log out</a>
+      </div>
+  </nav>
+
+
+
+      <div id="content">
+          <div id="recommendation">
+        <p class="h2 text-dark ml-4" >Results for '{{query}}'</p>
+        
+        
+    </div>
+      <div class="grid">
+        {% for i in range(0,10,5) %}
+        <div class="card-group" >
+          {% for j in range(0,5) %}
+              <div class="card" style="width: 18rem;" id="book">
+                <img src="{{recommendation[i+j]['img_l']}}" class="card-img-top" id="book_cover" alt="...">
+                <div class="card-body " id="card_body">
+                  <h5 class="card-title">{{recommendation[i+j]['book_title']}}</h5>
+                  <p class="card-text">{{recommendation[i+j]['Summary']}}</p>
+                  <a href="/{{recommendation[i+j]['ISBN']}}" class="btn btn-primary">See more</a>
+                </div>
+              </div>
+              {% endfor %}
+          </div>
+          {% endfor %}
+        </div>
+              <button class="btn text-primary" ><i class="fas fa-plus text-primary"></i> Show more</button>
+
+
+
+          
+
+
+      </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+</body>
+</html>
