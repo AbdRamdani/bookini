@@ -77,13 +77,15 @@ class GETOS:
             return (vc/(vc+min)*ar) + (min/(min+vc)*aver)
         books_data_df["weighted_score"]=books_data_df.apply(weighted_rating,axis=1)
         books_data_df=books_data_df.sort_values("weighted_score",ascending=False)
+        
         print("-----------",books_data_df.shape,"-------- ")
         #remove already rated books
         user_rat_bfr=(self.get_user_books_rated(user))["ISBN"]
         user_rat_bfr=user_rat_bfr.tolist()
         print(len(user_rat_bfr))
         books_data_df = books_data_df[~books_data_df['ISBN'].isin(user_rat_bfr)]
-        return books_data_df
+        
+        return books_data_df[0:300]
     
     def wrdvec(self,user):
         print(" *&$ now you are using word2vec method *&$")
@@ -126,11 +128,10 @@ class GETOS:
         print(bb.shape)
         user_rat_bfr=(self.get_user_books_rated(user))["ISBN"]
         user_rat_bfr=user_rat_bfr.tolist()
-        print(len(user_rat_bfr))
         #to remove already rated books from rec
         bb = bb[~bb['ISBN'].isin(user_rat_bfr)]
         print(bb.shape)
-        return bb     
+        return bb[0:300]
 
     def get_five_sim(self,book):
 
@@ -164,4 +165,14 @@ class GETOS:
         print(bb.shape)
         print(bb["ISBN"].head())
         return bb[:5]
+
+    def combine_svd_w2vc(self,category,user):
+        res1=self.getsvd(category,user)
+        res2=self.wrdvec(user)
+        resultat=pd.merge(res1,res2,on="ISBN")
+        #resultat=resultat.drop_duplicates(subset="ISBN")
+        print("$$$$$$",resultat.shape)
+        print(resultat.head(5))
+        return resultat
+
         

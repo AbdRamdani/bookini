@@ -16,6 +16,7 @@ def get_rec_list(category ,user,books_data=z.get_books() ):
 
   else:
     return z.getsvd(category,user).sample(frac=1)
+    #return z.combine_svd_w2vc(category,user).sample(frac=1)
 
 def get_sim(book):
   return z.get_five_sim(book).sample(frac=1)
