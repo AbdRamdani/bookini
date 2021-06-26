@@ -16,13 +16,13 @@
 <body>
     <nav class="navbar navbar-white bg-white" id="nav">
         <div class="container-fluid">
-            <a class="navbar-brand text-white" href="/"> <i class="fas fa-book text-white logo"></i>BOOKINI</a>
+            <a class="navbar-brand text-white" href=" {{url_for('dashboard')}}"> <i class="fas fa-book text-white logo"></i>BOOKINI</a>
             
             <form class="d-flex" method="POST" action="/search">
               <input class="form-control me-2" name="query" id="search" type="search" placeholder="Search" aria-label="Search">
               <button class="btn btn-outline-light" id="search_btn" type="submit">Search</button>
             </form>
-            <a href="/logout" class="btn btn-outline-light " id="logout_btn" type="submit">Log out</a>
+            <a href="{{url_for('logout')}}" class="btn btn-outline-light " id="logout_btn" type="submit">Log out</a>
           </div>
       </nav>
 
@@ -82,6 +82,12 @@
             <span class="carousel-control-next-icon" aria-hidden="true"></span>
           </button>
         </div>
+
+        <!--to  add this part , the user most rate 5 books at least-->
+        {% if nb>4 %}
+
+        
+
         <div class="books">
             <div class="grid dark">
                 <div id="similair" class="mt-4">
@@ -93,17 +99,19 @@
               {% for j in range(0,5) %}    
 
               <div class="card" style="width: 18rem;" id="book">
-                <img src="{{books[j]['img_l']}}" class="card-img-top" id="book_cover" alt="...">
+                <img src="{{books.iloc[j]['img_l']}}" class="card-img-top" id="book_cover" alt="...">
                 <div class="card-body " id="card_body">
-                  <h5 class="card-title">{{books[j]['book_title']}}</h5>
-                  <p class="card-text">{{books[j]['Summary']}}</p>
-                  <a href="/{{books[j]['ISBN']}}" class="btn">See more</a>
+                  <h5 class="card-title">{{books.iloc[j]['book_title']}}</h5>
+                  <p class="card-text">{{books.iloc[j]['Summary']}}</p>
+                  <a href="/{{books.iloc[j]['ISBN']}}" class="btn">See more</a>
                 </div>
               </div>
               {% endfor %} 
                 
             </div>
         </div>
+
+        {% endif %}
           
 
 
