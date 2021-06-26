@@ -38,10 +38,7 @@ def dashboard():
         print("$$$$$$")
         print(books.shape)
         print("$$$$$$$")
-        for i in range(0,6):
-            print(books.iloc[i]["ISBN"])
         
-
         print("&&&&&&& ",user_id["nb_ratings"])
         recommendation = getmethods.get_rec_list(category,user_id)
         print(recommendation.shape)
