@@ -174,5 +174,8 @@ class GETOS:
         print("$$$$$$",resultat.shape)
         print(resultat.head(5))
         return resultat
+    
+    
+
 
         
