@@ -25,21 +25,30 @@ bcrypt=Bcrypt(app)
 def dashboard():
     if 'u_id' in session:
         
-        books = mongo.db.books.find()
+        #books = mongo.db.books.find()
         category = mongo.db.users.find_one({'User-ID':session['u_id']})['Liked_categories']
         category = ['[\''+x+'\']' for x in category]
-        books_data = pd.DataFrame.from_dict(books)
-        books = mongo.db.books.find()
+        #books_data = pd.DataFrame.from_dict(books)
+        
         #recommendation = demarage_froid(category,books_data)
         #recommendation = getmethods.demarage_froid(category,books_data)
         user_id=(mongo.db.users.find_one({'User-ID':session['u_id']}))
+        user_rat_nb=int( mongo.db.users.find_one({'User-ID':session['u_id']})["nb_ratings"] )
+        books = getmethods.get_last_five_rated(user_id)
+        print("$$$$$$")
+        print(books.shape)
+        print("$$$$$$$")
+        for i in range(0,6):
+            print(books.iloc[i]["ISBN"])
+        
+
         print("&&&&&&& ",user_id["nb_ratings"])
         recommendation = getmethods.get_rec_list(category,user_id)
         print(recommendation.shape)
         
         # last_rated_book = mongo.db.users.find_one({"User-ID" : session['u_id']})['last_rated']
 
-        return render_template('final.html',books = books,recommendation = recommendation)
+        return render_template('final.html',nb=user_rat_nb,books = books,recommendation = recommendation)
     return redirect('/login')
 
 @app.route('/search',methods = ['GET','POST'])
@@ -105,6 +114,8 @@ def signup():
         content = {
             'email':email,
             'name' : name,
+            'firstname':firstname,
+            'lastname':lastname,
             'User-ID' : u_id,
             'age':age,
             'password':password
