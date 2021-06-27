@@ -10,6 +10,8 @@ import recom
 from recom import getmethods 
 from flask_bcrypt import Bcrypt
 
+
+
 app = Flask(__name__)
 app.config['MONGO_URI'] ='mongodb://localhost:27017/dataset'
 SECRET_KEY = os.urandom(16).hex()
@@ -35,13 +37,11 @@ def dashboard():
         user_id=(mongo.db.users.find_one({'User-ID':session['u_id']}))
         user_rat_nb=int( mongo.db.users.find_one({'User-ID':session['u_id']})["nb_ratings"] )
         books = getmethods.get_last_five_rated(user_id)
-        print("$$$$$$")
-        print(books.shape)
-        print("$$$$$$$")
+
         
-        print("&&&&&&& ",user_id["nb_ratings"])
+        print("\n\t*********************************\n nombre de ratting pour l'utilisateur est :",user_id["nb_ratings"])
         recommendation = getmethods.get_rec_list(category,user_id)
-        print(recommendation.shape)
+        
         
         # last_rated_book = mongo.db.users.find_one({"User-ID" : session['u_id']})['last_rated']
 
@@ -64,9 +64,10 @@ def book(id):
     if 'u_id' in session:
             
             result = mongo.db.books.find_one_or_404({"ISBN":id})
+            res_rat= round(result["average_rating"],2)
+            print(res_rat)
             rating = mongo.db.ratings.find_one({"ISBN":id,"User-ID":session['u_id']})
-            print(rating)
-            return render_template('book.html',res = result,rating=rating)
+            return render_template('book.html',res = result,res_rat=res_rat,rating=rating)
     return redirect('/login')
 
 @app.route('/login',methods= ['POST','GET'])
@@ -84,7 +85,6 @@ def login():
             if bcrypt.check_password_hash(user['password'],password) :
             #if password == user['password']:
                 u_id =  mongo.db.users.find_one({'email':email})['User-ID']
-                print(u_id)
                 session['u_id'] = u_id
                 return redirect('/')
             else:
@@ -156,25 +156,19 @@ def sim():
         mongo.db.ratings.insert_one(newrating)
 
         current_book = mongo.db.books.find_one({'ISBN':newrating['ISBN']})
-        #print(type(current_book),current_book,"$$$$$$$$$$$$$$")
-        
+
         average = ((current_book['SommeRating'] * current_book['average_rating']) + newrating['Book-Rating']) / (current_book['SommeRating'] + 1)
         current_book['average_rating'] = average              
         current_book['SommeRating'] = current_book['SommeRating'] + 1
         mongo.db.books.update_one({'ISBN' : newrating['ISBN']}, {"$set" : current_book})
         mongo.db.users.update_one({'User-ID':session['u_id']},{"$set":{'last_rated' : request.form['book_id']}})
+
         #pour calculer le nombre des ratings par l'utilisateur : 
         mongo.db.users.update_one({'User-ID':session['u_id']},{"$inc":{'nb_ratings' : 1}})
         
-        """
-        list_res = list(res)[:5]
-        print(type(list_res))
-        print(type(dumps(list_res)))
-        print(dumps(list_res))
-        return dumps(list_res)
-        """
+
         list_res = getmethods.get_sim(current_book)
-        #list_res=list_res.index.str.encode('unicode_escape')
+        
         list_res=list_res[["img_l","book_title","Summary","ISBN"]]
         #json to send it to book.html
         list_json=list_res.to_json(orient = 'records')
@@ -186,6 +180,7 @@ def sim():
 def logout():
    
     session.pop('u_id',None)
+
     #refresh svd matrice value with new rating 
     getmethods.log_out_ref()
     return redirect('/login')
