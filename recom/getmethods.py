@@ -26,8 +26,6 @@ def log_out_ref():
 
 def get_last_five_rated(user):
   a=z.get_user_books_rated(user) #[-5:]
-  print(a.shape)
-  print(a.head)
   return a
 
 

@@ -4,6 +4,14 @@ from surprise import Reader, Dataset, SVD
 import gensim 
 import pickle 
 from main import mongo 
+import warnings
+from pandas.core.common import SettingWithCopyWarning
+
+warnings.simplefilter(action="ignore", category=SettingWithCopyWarning)
+warnings.filterwarnings("ignore", category=RuntimeWarning) 
+
+
+
 
 
 
@@ -66,7 +74,7 @@ class GETOS:
         return self.books_rating[self.books_rating["User-ID"]==user_id]
 
     def demarage_froid(self,category,user):
-        print(" *&$ now you are using demarage_froid method *&$")
+        print(" LA METHODE ACTUELLE : LES LIVRES LES PLUS POPULAIRE DE LA CATEGORY \n\t*********************************\n")
         books_data_df=self.books_data[self.books_data["Category"].isin(category)]
         average_all=books_data_df["average_rating"].mean()
         nb_vote_min=books_data_df["SommeRating"].quantile(0.99)
@@ -78,17 +86,17 @@ class GETOS:
         books_data_df["weighted_score"]=books_data_df.apply(weighted_rating,axis=1)
         books_data_df=books_data_df.sort_values("weighted_score",ascending=False)
         
-        print("-----------",books_data_df.shape,"-------- ")
+        
         #remove already rated books
         user_rat_bfr=(self.get_user_books_rated(user))["ISBN"]
         user_rat_bfr=user_rat_bfr.tolist()
-        print(len(user_rat_bfr))
+        
         books_data_df = books_data_df[~books_data_df['ISBN'].isin(user_rat_bfr)]
         
         return books_data_df[0:300]
     
     def wrdvec(self,user):
-        print(" *&$ now you are using word2vec method *&$")
+        print("** LA METHODE ACTUELLE : Word2Vec \n\t*********************************\n")
         bo=self.get_user_books_rated(user)
         user_rat_bfr=bo
         bo=bo[0:5]
@@ -107,15 +115,15 @@ class GETOS:
         df=df.sort_values("sim",ascending=False)
         
         bb=pd.merge(df["ISBN"],self.books_data,on="ISBN",how="inner")
-        print(bb.shape)
+
         user_rat_bfr=(user_rat_bfr["ISBN"]).tolist()
         bb = bb[~bb['ISBN'].isin(user_rat_bfr)]
-        print(bb.shape)
+
         return bb
     
     def getsvd(self,category,user):
 
-        print(" *&$ now you are using svd method *&$")
+        print("** LA METHODE ACTUELLE : Pondération de SVD & Word2Vec \n\t*********************************\n")
         col=("ISBN","note")
         books_data_cb=self.books_data[self.books_data["Category"].isin(category)]
         array = np.empty((0,2))
@@ -125,32 +133,22 @@ class GETOS:
         df = pd.DataFrame(data=array, columns=col)
         df = df.sort_values("note",ascending=False)
         bb=pd.merge(df["ISBN"],self.books_data,on="ISBN",how="inner")
-        print(bb.shape)
+        
         user_rat_bfr=(self.get_user_books_rated(user))["ISBN"]
         user_rat_bfr=user_rat_bfr.tolist()
         #to remove already rated books from rec
         bb = bb[~bb['ISBN'].isin(user_rat_bfr)]
-        print(bb.shape)
+        
         return bb[0:300]
 
     def get_five_sim(self,book):
 
-        """col=("ISBN","rat","sim")
-        array = np.empty((0,3)) 
-            
-        for i in range(1,6): # car le 0 cest notre livre donc 
-            row=self.books_data.iloc[sim[i][0]]
-            array = np.append(array, np.array([[row["ISBN"],row["average_rating"],sim[i][1]]]), axis=0)
-        df = pd.DataFrame(data=array, columns=col)
-        df=df.sort_values("sim",ascending=False)
-        bb=pd.merge(self.books_data,df["ISBN"],on="ISBN",how="inner")
-        return bb"""
+        print("\n\t****************************\n calcule de 5 livre similaire a \"",book["book_title"],"\" .\n\t****************************\n")
 
         col=("ISBN","rat","sim")
         array = np.empty((0,3)) 
 
         test=(self.books_data[self.books_data["ISBN"]==book["ISBN"]]).squeeze()
-        print(type(test),"      ",test)
         sim=self.docsim_index[test["Text"]]
             
         for i in range(1,11): # car le 0 cest notre livre donc 
@@ -162,8 +160,6 @@ class GETOS:
         
         bb=pd.merge(df["ISBN"],self.books_data,on="ISBN",how="inner")
         
-        print(bb.shape)
-        print(bb["ISBN"].head())
         return bb[:5]
 
     def combine_svd_w2vc(self,category,user):
@@ -171,8 +167,7 @@ class GETOS:
         res2=self.wrdvec(user)
         resultat=pd.merge(res1,res2,on="ISBN")
         #resultat=resultat.drop_duplicates(subset="ISBN")
-        print("$$$$$$",resultat.shape)
-        print(resultat.head(5))
+
         return resultat
     
     
