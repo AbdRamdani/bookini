@@ -16,7 +16,7 @@
     
   <nav class="navbar navbar-white bg-white" id="nav">
     <div class="container-fluid">
-        <a class="navbar-brand text-white" href="/"> <i class="fas fa-back text-white logo"></i>Back to Home Page</a>
+        <a class="navbar-brand text-white" href="{{url_for('dashboard')}}"> <i class="fas fa-back text-white logo"></i>Back to Home Page</a>
         
         <form class="d-flex" method="POST" action="/search">
           <input class="form-control me-2" name="query" id="search" type="search" placeholder="Search" aria-label="Search">
@@ -35,7 +35,7 @@
             </h5>
             </div>
             <p class="lead text-dark">{{res['Summary']}}</p>
-            <h3>{{res['average_rating']}}</h3>
+            <h3>{{res_rat}}</h3>
             {%if not rating %}
             <div class="rate_form bg-light">
             <input class="form-control me-2" id="rating" type="number" max="10" min="0" name="rating" placeholder="Rate it" required>
